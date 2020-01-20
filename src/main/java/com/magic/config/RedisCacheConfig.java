@@ -1,7 +1,6 @@
 package com.magic.config;
 
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
@@ -46,10 +45,11 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
                 str.append(o.getClass().getSimpleName());
                 str.append(".");
                 str.append(method.getName());
-                str.append(".");
-                for (Object object :
-                        objects) {
-                    str.append(object.toString());
+                for (Object object : objects) {
+                    if(object != null){
+                        str.append(".");
+                        str.append(object.toString());
+                    }
                 }
                 System.out.println("调用redis缓存key："+str.toString());
                 return str.toString();
@@ -62,14 +62,15 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory){
         RedisCacheWriter redisCacheWriter = RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory);
         FastJsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJsonRedisSerializer<>(Object.class);
-        RedisSerializationContext.SerializationPair<Object> objectSerializationPair =
+
+        RedisSerializationContext.SerializationPair<Object> pair =
                 RedisSerializationContext.SerializationPair.fromSerializer(fastJsonRedisSerializer);
-        RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
+        RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig().serializeValuesWith(pair);
 //        //设置默认超过期时间是30秒
-        cacheConfiguration.entryTtl(Duration.ofDays(30));
+        defaultCacheConfig = defaultCacheConfig.entryTtl(Duration.ofSeconds(100));
 
         //初始化RedisCacheManager
-        RedisCacheManager cacheManager = new RedisCacheManager(redisCacheWriter,cacheConfiguration);
+        RedisCacheManager cacheManager = new RedisCacheManager(redisCacheWriter,defaultCacheConfig);
 
 
         //设置白名单---非常重要********
@@ -95,16 +96,17 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
     }
 
     @Bean
-    public RedisTemplate<Object,Object> redisTemplate(RedisConnectionFactory factory){
-        RedisTemplate<Object,Object> redisTemplate = new RedisTemplate<>();
-
+    public RedisTemplate<String ,Object> redisTemplate(RedisConnectionFactory factory){
+        RedisTemplate<String ,Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(factory);
+        redisTemplate.setEnableTransactionSupport(true);
         FastJsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJsonRedisSerializer<>(Object.class);
-
         redisTemplate.setValueSerializer(fastJsonRedisSerializer);
         redisTemplate.setHashValueSerializer(fastJsonRedisSerializer);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setConnectionFactory(factory);
+        redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+        redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }
 }

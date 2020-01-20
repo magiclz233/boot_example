@@ -53,3 +53,5 @@ mybatis:
   type-aliases-package: com/magic/dto
 pagehelper:
   helper-dialect: mysql
+logging:
+  config: classpath:logback-spring.xml
