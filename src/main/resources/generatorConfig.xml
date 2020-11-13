@@ -32,8 +32,8 @@
         </commentGenerator>
         <!-- jdbc连接-->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://localhost:3306/mybatis-all?serverTimezone=UTC" userId="magic"
-                        password="123456"/>
+                        connectionURL="jdbc:mysql://106.75.216.194:3306/mybatis-all?serverTimezone=UTC" userId="root"
+                        password="QWERwasd*963."/>
         <!-- 类型转换 -->
         <javaTypeResolver>
             <!-- 是否使用bigDecimal， false可自动转化以下类型（Long, Integer, Short, etc.） -->

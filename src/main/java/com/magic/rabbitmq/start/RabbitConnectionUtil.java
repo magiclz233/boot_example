@@ -21,11 +21,11 @@ public class RabbitConnectionUtil {
         Connection connection = null;
 
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("127.0.0.1");
+        factory.setHost("106.75.216.194");
         factory.setPort(5672);
         factory.setVirtualHost("/");
-        factory.setUsername("magic");
-        factory.setPassword("123456");
+        factory.setUsername("guest");
+        factory.setPassword("guest");
         connection = factory.newConnection();
         return connection;
     }
